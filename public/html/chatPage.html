@@ -5,22 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat App</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f0f0f0;
-        }
-        #chat-container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .message {
-            margin-bottom: 10px;
-        }
-    </style>
+   <link href="../css/chatapp.css" type="stylesheet0">
+        
 </head>
 <body>
     <div class="container mt-5">
@@ -41,28 +27,8 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const sendButton = document.getElementById('send-button');
-
-            sendButton.addEventListener('click', function () {
-                sendMessage();
-            });
-
-            function sendMessage() {
-                const messageInput = document.getElementById('message-input');
-                const message = messageInput.value.trim();
-                if (message !== '') {
-                    const messageElement = document.createElement('div');
-                    messageElement.textContent = message;
-                    messageElement.classList.add('message');
-                    document.getElementById('chat-messages').appendChild(messageElement);
-                    messageInput.value = '';
-                    const chatContainer = document.getElementById('chat-container');
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-            }
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../javascript/chat_app.js">
+            </script>
 </body>
 </html>

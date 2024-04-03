@@ -16,6 +16,7 @@ document.getElementById('registration-form').addEventListener('submit', function
         document.getElementById('password').value = "";
         document.getElementById('name').value = "";
         alert('Signup successful!');
+        window.location.href="../html/login.html"
         
         // Redirect or do something else after successful signup
     })
