@@ -85,14 +85,26 @@ async function allUser(req,res,next){
 }
 async function getChat(req,res,next){
     try{
-    id=req.params.id;
+    let id=req.params.id;
+    let lastElement=req.params.lastElement ||0; 
+    
     console.log("id==",id)
-    const message= await chat.findAll({where:{groupId:id}})
-    res.status(200).json({message});
+    const messages = await chat.findAll({
+        where: {
+          id: {
+            [Op.gt]: lastElement
+          },
+          groupId: id// Replace yourGroupId with the actual groupId value
+        }
+      });
+        if(messages!==null){
+            return res.status(201).json({messages})
+        }
+    
     }
     catch(error){
         console.log(error);
-        res.status(400).json({"message":"chat did not found "})
+        res.status(500).json({"message":"chat did not found "})
 
     }
     

@@ -8,11 +8,16 @@ const joinedGroups = document.getElementById("joinedGroups");
 const groupMessages = document.getElementById("groupMessages")
 const messageText=document.getElementById("messageText");
 const sendMessageForm= document.getElementById("sendMessageForm")
+let messages = [];
+const MAX_MESSAGES = 10;
 
 let selectedGroupId = null;
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    if(!token){
+        window.location.href="../html/login.html"
+    }
 
 });
 
@@ -106,7 +111,7 @@ async function allGroup() {
         button.addEventListener("click", async()=>{
             selectedGroupId = group.id;
             console.log(group);
-            loadChat(group.id);
+            loadChat(selectedGroupId);
             
         })  
         
@@ -118,13 +123,17 @@ async function allGroup() {
     })
 }
 async function loadChat(id){
-    let messages = [];
-    const MAX_MESSAGES = 10;
+    
     groupMessages.innerHTML="";
+    // messages=localStorage.getItem("message")||[];
+    
+    //     messages=JSON.parse(messages);
+    
+   
     let lastElement = messages.length > 0 ? messages[messages.length - 1].id : 0;
     try{
     const res = await axios.get(`http://localhost:3000/groupChat/getChat/${id}/${lastElement}`, { headers: { "Authorization": token } })
-    const newMessages = res.data.message;
+    const newMessages = res.data.messages;
     //i need to write something over here
     console.log("load chat>>>>",res.data);
     if (newMessages.length > 0) {
@@ -133,17 +142,25 @@ async function loadChat(id){
                         messages = messages.slice(messages.length - MAX_MESSAGES);
                     }
                     localStorage.setItem("message", JSON.stringify(messages));
-                    renderMessages(messages);
+                   
                 }
 
 
 
 
-
-    res.data.message.forEach(element=>{
+    const userId = parseJwt(token).userId;
+    messages.forEach(element=>{
         console.log("element=",element)
         const message=document.createElement("li");
-    message.innerHTML=`${element.chat}`;
+        const messageText = element.chat.trim();
+        let messageName = '';
+        if (element.userId === userId) {
+                        messageName = 'You';
+                    } else {
+                        messageName = element.name; // Assuming 'name' is the sender's name
+                    }
+                    const messageColor = element.userId === userId ? 'red' : 'blue';
+    message.innerHTML=`<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`
     
     
     groupMessages.append(message);
@@ -173,6 +190,7 @@ async function sendMessage(message) {
                 headers: { "Authorization": token }
             });
             console.log("Message sent to group:", selectedGroupId);
+            loadChat(selectedGroupId)
         } catch (error) {
             console.error('Error sending message:', error);
         }
@@ -232,10 +250,10 @@ async function sendMessage(message) {
 //     });
 // }
 
-// function parseJwt(token) {
-//     const base64Url = token.split('.')[1];
-//     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-//     const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-//     return JSON.parse(jsonPayload);
-// }
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(jsonPayload);
+}
 
