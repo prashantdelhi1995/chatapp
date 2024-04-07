@@ -1,11 +1,13 @@
 const sequelize= require("../util/database");
 const chat= require("../model/chat");
 const user=require("../model/user");
+const { Op } = require('sequelize');
 module.exports.postChat=async(req,res,next)=>{
     try {
     const message=req.body.message;
-    console.log(">>>>>>>",req.user)
-    const textMessage= await chat.create({chat:message, name:req.user.Name  ,userId:req.user.Id});
+    const groupId=req.query.groupId;
+    
+    const textMessage= await chat.create({chat:message, name:req.user.Name  ,userId:req.user.Id , groupId});
     return res.status(201).json(textMessage);
     }
     catch(err){
@@ -15,7 +17,19 @@ module.exports.postChat=async(req,res,next)=>{
 }
 module.exports.getChat=async(req,res,next)=>{
     try{
-const message=await chat.findAll()
+ const groupId=req.query.groupId;       
+ let lastElement=req.query.lastElement ||0; 
+     
+const message=await chat.findAll({
+    where: {
+        id: {
+            [Op.gt]: lastElement , groupId:groupId
+        }
+        
+        
+    }
+})
+console.log("message is",message);
 if(message!==null){
     return res.status(201).json({message})
 }

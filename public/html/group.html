@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .message-container, .group-container {
+            border: 1px solid #ccc;
+            height: 300px; /* Set desired height */
+            overflow-y: auto; /* Add scrollbar when content exceeds container height */
+            margin-bottom: 10px; /* Add some margin at the bottom */
+        }
+        #joinedGroups {
+    text-align: center; /* Center align the groups */
+}
+
+#joinedGroups li {
+    display: inline-block; /* Display groups in a horizontal line */
+    margin: 0 5px; /* Add some space between groups */
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Chat App</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-secondary" id="Logout">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card card-body">
+                    <h2>Create Group</h2>
+                    <button class="btn btn-primary mb-3" type="button" data-toggle="collapse" data-target="#createGroupForm"
+                        aria-expanded="false" aria-controls="createGroupForm">
+                        Add Group
+                    </button>
+                    <div class="collapse" id="createGroupForm">
+                        <form id="addGroup">
+                            <div class="form-group">
+                                <label for="groupName">Group Name</label>
+                                <input type="text" class="form-control" id="groupName" placeholder="Enter group name">
+                            </div>
+                            <div class="form-group">
+                                <label for="members">Add Members</label>
+                                <select class="form-select" id="members"  size="5" multiple>
+                                   
+                                    <!-- Options will be dynamically populated here -->
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="group-container mt-3">
+                    <h2>Joined Groups</h2>
+                    <ul id="joinedGroups" class="list-group">
+                        <!-- List of joined groups will appear here -->
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="message-container">
+                    <h2>Group Messages</h2>
+                    <ul id="groupMessages" class="list-group">
+                        <!-- Messages of the selected group will appear here -->
+                    </ul>
+                </div>
+                <form id="sendMessageForm">
+                    <div class="form-group">
+                        <label for="messageText">Message</label>
+                        <input type="text" class="form-control" id="messageText" placeholder="Enter your message">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="../javascript/group.js"></script>
+</body>
+</html>

@@ -16,7 +16,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
         alert('login successful!');
         console.log(response.data)
         localStorage.setItem("token",response.data.token)
-        window.location.href = '../html/chatPage.html';
+        window.location.href = '../html/group.html';
         document.getElementById('email').value = "";
         document.getElementById('password').value = "";
 
@@ -34,7 +34,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
 });
 window.addEventListener("DOMContentLoaded",()=>{
      if(token){
-      window.location.href="../html/chatPage.html"
+      window.location.href="../html/group.html"
      }
       
   })

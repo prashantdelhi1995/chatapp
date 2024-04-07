@@ -8,6 +8,9 @@ const chatRoute=require("./route/chat")
 const bodyParser=require("body-parser");
 const user=require("./model/user")
 const Chat=require("./model/chat")
+const group=require("./model/group");
+const userGroup=require("./model/usergroup");
+const groupChat=require("./route/groupChat");
 const cors=require("cors")
 
 const app= express();
@@ -16,7 +19,8 @@ app.use(cors());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 app.use("/user",userRoute);
-app.use("/user",chatRoute)
+app.use("/user",chatRoute);
+app.use("/groupChat",groupChat);
 app.use((req,res)=>{
     console.log(res.url);
     res.send(`<h1>this is not correct url and your url is ${res.url}</h1>`)
@@ -24,6 +28,16 @@ app.use((req,res)=>{
 });
 user.hasMany(Chat);
 Chat.belongsTo(user);
+
+group.hasMany(Chat)
+Chat.belongsTo(group)
+
+group.hasMany(userGroup);
+userGroup.belongsTo(group);
+
+user.hasMany(userGroup);
+userGroup.belongsTo(user);
+
 
 
 
