@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,13 +15,22 @@
             margin-bottom: 10px; /* Add some margin at the bottom */
         }
         #joinedGroups {
-    text-align: center; /* Center align the groups */
-}
+            text-align: center;
+            max-height: 900px; /* Center align the groups */
+        }
 
-#joinedGroups li {
-    display: inline-block; /* Display groups in a horizontal line */
-    margin: 0 5px; /* Add some space between groups */
-}
+        #joinedGroups li {
+            display: inline-block; /* Display groups in a horizontal line */
+            margin: 0 5px; /* Add some space between groups */
+        }
+        .info-button {
+            background-color: #007bff; /* Change button background color */
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -40,6 +50,18 @@
             </div>
         </div>
     </nav>
+    <div class="admin" style="margin-left: 60%;"; id="admin">
+        <h2>Admin Actions</h2>
+        <button class="btn btn-primary" onclick="openAdminAssignmentModal()">Assign Admin</button>
+    </div>
+    <div class="addMember"  style="margin-left: 60%;"; id="addMember">
+        <h2>Add Member </h2>
+        <button class="btn btn-primary" onclick="openAddMemberModel()">Add Member</button>
+    </div>
+    <div id="groupLeft">
+    <button id="leftGroup"  class="btn btn-warning" style="margin-left: 80%;">Left Group</button>
+    </div>
+
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-4">
@@ -57,8 +79,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="members">Add Members</label>
-                                <select class="form-select" id="members"  size="5" multiple>
-                                   
+                                <select class="form-select" id="members" size="5" multiple>
                                     <!-- Options will be dynamically populated here -->
                                 </select>
                             </div>
@@ -73,9 +94,11 @@
                     </ul>
                 </div>
             </div>
+            
             <div class="col-md-8">
                 <div class="message-container">
                     <h2>Group Messages</h2>
+                    
                     <ul id="groupMessages" class="list-group">
                         <!-- Messages of the selected group will appear here -->
                     </ul>
@@ -91,8 +114,88 @@
         </div>
     </div>
 
+    <!-- Modal for group info -->
+    <div class="modal fade" id="groupInfoModal" tabindex="-1" role="dialog" aria-labelledby="groupInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="groupInfoModalLabel">all Group Members</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="groupInfoForm">
+                        <!-- Group members will be displayed here -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for admin assignment -->
+    <div class="modal fade" id="adminAssignmentModal" tabindex="-1" role="dialog" aria-labelledby="adminAssignmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminAssignmentModalLabel">Assign Admin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="adminAssignmentForm" method="post">
+                        <!-- Checkboxes for each group member will be displayed here -->
+
+                        
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="addAdminButton" class="btn btn-primary">Assign Admin</button>
+                    
+                    
+                </div>
+               
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addMemberGroup" tabindex="-1" role="dialog" aria-labelledby="adminAssignmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMemberModalLabel">addMember</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMemberForm" method="post">
+                        <!-- Checkboxes for each group member will be displayed here -->
+
+                        
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="addMemberButton" class="btn btn-primary">add Member</button>
+                    
+                    
+                </div>
+               
+                
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
 
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -100,5 +203,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script src="../javascript/group.js"></script>
+
+    
 </body>
 </html>

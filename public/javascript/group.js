@@ -2,24 +2,23 @@ const token = localStorage.getItem("token");
 const logout = document.getElementById("Logout");
 const addGroup = document.getElementById("addGroup");
 const groupName = document.getElementById("GroupName");
-//const members = document.getElementById("members");
+
 const joinedGroups = document.getElementById("joinedGroups");
-//const chatMessage=document.getElementById("chat-messages");
+
 const groupMessages = document.getElementById("groupMessages")
 const messageText=document.getElementById("messageText");
 const sendMessageForm= document.getElementById("sendMessageForm")
-let messages = [];
+const addAdmin=document.getElementById("admin")
+const leftGroup=document.getElementById("leftGroup");
+const groupLeft=document.getElementById("groupLeft");
+const addMember=document.getElementById("addMember")
+
 const MAX_MESSAGES = 10;
 
 let selectedGroupId = null;
 
 
-document.addEventListener("DOMContentLoaded", () => {
-    if(!token){
-        window.location.href="../html/login.html"
-    }
 
-});
 
 logout.addEventListener("click", () => {
     localStorage.removeItem("token");
@@ -59,6 +58,18 @@ function populateMembersSelect(members) {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
+    if(!token){
+        window.location.href="../html/login.html"
+    }
+
+    if(selectedGroupId==null ){
+                
+        addAdmin.style.visibility="hidden";
+        groupLeft.style.visibility="hidden";
+        addMember.style.visibility="hidden";
+
+    }
+
     allGroup();
     // Fetch members when the page loads
     try {
@@ -100,83 +111,101 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
 
+
 async function allGroup() {
     joinedGroups.innerHTML = '';
     const res = await axios.get('http://localhost:3000/groupChat/allGroup', { headers: { "Authorization": token } })
     res.data.reverse().forEach(group => {
         const userGroup = document.createElement("li");
         const button = document.createElement("button");
-        button.classList.add("btn", "btn-light", "btn-lg");
-        button.textContent = group.groupName;
+        button.classList.add("btn", "btn-light", "btn-lg", "info-button"); // Add info-button class
+        button.textContent = group.group.groupName;
+        button.style.width = '300px'; // Set the width to 100 pixels
+        button.style.height = '50px';
+        button.style.padding="1opx"
         button.addEventListener("click", async()=>{
-            selectedGroupId = group.id;
-            console.log(group);
-            loadChat(selectedGroupId);
+            selectedGroupId = group.group.id;
             
-        })  
-        
-        userGroup.appendChild(button);
-        
-        
-        joinedGroups.appendChild(userGroup);
+            if(selectedGroupId ){
+                addAdmin.style.visibility="visible";
+                groupLeft.style.visibility="visible";
+                addMember.style.visibility="visible";
 
+            }
+            if(group.isAdmin==false ){
+                addAdmin.style.visibility="hidden";
+                addMember.style.visibility="visible";
+            }
+           loadChat(selectedGroupId);
+        });
+
+        const infoButton = document.createElement("button"); // Create info button
+        infoButton.classList.add("btn", "btn-info", "btn-sm", "ml-2"); // Add classes for styling
+        infoButton.textContent = "Info";
+        infoButton.addEventListener("click", () => openGroupInfoModal(group.group.id)); // Add click event listener
+
+        userGroup.appendChild(button);
+        userGroup.appendChild(infoButton); // Append info button to the group item
+
+        joinedGroups.appendChild(userGroup);
     })
 }
+ 
+
 async function loadChat(id){
-    
     groupMessages.innerHTML="";
-    // messages=localStorage.getItem("message")||[];
+
+    let storedMessages = localStorage.getItem(id);
+    storedMessages = storedMessages ? JSON.parse(storedMessages) : [];
     
-    //     messages=JSON.parse(messages);
+    const lastStoredMessage = storedMessages.length > 0 ? storedMessages[storedMessages.length - 1].id : 0;
     
-   
-    let lastElement = messages.length > 0 ? messages[messages.length - 1].id : 0;
-    try{
-    const res = await axios.get(`http://localhost:3000/groupChat/getChat/${id}/${lastElement}`, { headers: { "Authorization": token } })
-    const newMessages = res.data.messages;
-    //i need to write something over here
-    console.log("load chat>>>>",res.data);
-    if (newMessages.length > 0) {
-                    messages = [...messages, ...newMessages];
-                    if (messages.length > MAX_MESSAGES) {
-                        messages = messages.slice(messages.length - MAX_MESSAGES);
-                    }
-                    localStorage.setItem("message", JSON.stringify(messages));
-                   
+    try {
+        const res = await axios.get(`http://localhost:3000/groupChat/getChat/${id}/${lastStoredMessage}`, { headers: { "Authorization": token } })
+        const newMessages = res.data.messages;
+
+        if (newMessages.length > 0) {
+            // Append new messages to stored messages
+            storedMessages.push(...newMessages);
+            
+            // Keep only the latest 10 messages
+            if (storedMessages.length > MAX_MESSAGES) {
+                storedMessages = storedMessages.slice(storedMessages.length - MAX_MESSAGES);
+            }
+            
+            // Update local storage
+            localStorage.setItem(id, JSON.stringify(storedMessages));
+        }
+
+        const userId = parseJwt(token).userId;
+        storedMessages.forEach(element => {
+            if (element.groupId == id) {
+                const message = document.createElement("li");
+                const messageText = element.chat.trim();
+                let messageName = '';
+                
+                if (element.userId === userId) {
+                    messageName = 'You';
+                } else {
+                    messageName = element.name; // Assuming 'name' is the sender's name
                 }
-
-
-
-
-    const userId = parseJwt(token).userId;
-    messages.forEach(element=>{
-        console.log("element=",element)
-        const message=document.createElement("li");
-        const messageText = element.chat.trim();
-        let messageName = '';
-        if (element.userId === userId) {
-                        messageName = 'You';
-                    } else {
-                        messageName = element.name; // Assuming 'name' is the sender's name
-                    }
-                    const messageColor = element.userId === userId ? 'red' : 'blue';
-    message.innerHTML=`<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`
-    
-    
-    groupMessages.append(message);
-
-    })
-    
-    }
-    catch(error){
+                
+                const messageColor = element.userId === userId ? 'red' : 'blue';
+                message.innerHTML = `<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`
+                
+                groupMessages.append(message);
+            }
+        });
+    } catch(error) {
         console.log(error);
     }
-    
 }
+
 sendMessageForm.addEventListener("submit",(event)=>{
     event.preventDefault();
     const message=messageText.value;
     sendMessage(message);
+    messageText.value="";
 })
 async function sendMessage(message) {
 
@@ -201,54 +230,7 @@ async function sendMessage(message) {
 }
 
 
-//new group trying to store message on a localstorage
-// let messages = [];
 
-// const MAX_MESSAGES = 10;
-// async function displayOnScreen() {
-//     try {
-//         groupMessages.innerHTML="";
-//         let lastElement = messages.length > 0 ? messages[messages.length - 1].id : 0;
-
-//         const res = await axios.get(`http://localhost:3000/user/chat?lastElement=${lastElement}`, {
-//             headers: { "Authorization": token }
-//         });
-
-//         const newMessages = res.data.message;
-//         if (newMessages.length > 0) {
-//             messages = [...messages, ...newMessages];
-//             if (messages.length > MAX_MESSAGES) {
-//                 messages = messages.slice(messages.length - MAX_MESSAGES);
-//             }
-//             localStorage.setItem("message", JSON.stringify(messages));
-//             renderMessages(messages);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
-// function renderMessages(messages) {
-//     chatMessage.innerHTML = '';
-//     const userId = parseJwt(token).userId;
-
-//     messages.forEach(message => {
-//         const messageElement = document.createElement('div');
-//         const messageText = message.chat.trim();
-//         let messageName = '';
-
-//         if (message.userId === userId) {
-//             messageName = 'You';
-//         } else {
-//             messageName = message.name; // Assuming 'name' is the sender's name
-//         }
-
-//         const messageColor = message.userId === userId ? 'red' : 'blue';
-//         messageElement.innerHTML = `<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`;
-//         messageElement.classList.add('message');
-//         chatMessage.appendChild(messageElement);
-//     });
-// }
 
 function parseJwt(token) {
     const base64Url = token.split('.')[1];
@@ -256,4 +238,202 @@ function parseJwt(token) {
     const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
     return JSON.parse(jsonPayload);
 }
+
+function openGroupInfoModal(groupId) {
+    // Fetch group members and populate the modal
+    axios.get(`http://localhost:3000/groupChat/getMember?groupId=${groupId}`,{headers:{"Authorization":token}})
+    .then(response => {
+        const members = response.data.allMember;
+        console.log("members=",members)
+        const modalBody = document.querySelector('#groupInfoModal .modal-body');
+        const form = document.createElement('form');
+        form.id = 'groupInfoForm';
+
+        members.forEach(member => {
+            console.log("member--",member)
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = member.userName;
+
+            
+            checkbox.value = member.userId;
+            if (member.groupId==groupId) {
+                checkbox.checked = true;
+                checkbox.disabled = true; // Disable checkbox if user is already a member
+            }
+            
+            const label = document.createElement('label');
+            label.textContent = member.isAdmin==true?member.userName+"(Admin)": member.userName;
+
+            const div = document.createElement('div');
+            div.appendChild(checkbox);
+            div.appendChild(label);
+
+            form.appendChild(div);
+        });
+
+        modalBody.innerHTML = ''; // Clear previous content
+        modalBody.appendChild(form);
+
+        
+        
+    })
+    .catch(error => {
+        console.error('Error fetching group members:', error);
+    });
+
+    // Show the modal
+    $('#groupInfoModal').modal('show');
+}
+
+
+// Function to open admin assignment modal
+function openAdminAssignmentModal() {
+    const groupId = selectedGroupId; // Assuming selectedGroupId is the ID of the currently viewed group
+    populateAdminAssignmentModal(groupId);
+    $('#adminAssignmentModal').modal('show');
+}
+
+// Function to fetch group members and populate admin assignment modal
+function populateAdminAssignmentModal(groupId) {
+    axios.get(`http://localhost:3000/groupChat/getMember?groupId=${groupId}`, { headers: { "Authorization": token } })
+        .then(response => {
+            const members = response.data.allMember;
+            const modalBody = document.querySelector('#adminAssignmentModal .modal-body');
+            modalBody.innerHTML = ''; // Clear previous content
+
+            members.forEach(member => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = member.userId;
+                checkbox.checked = member.isAdmin; // Check if the user is already an admin
+                checkbox.disabled = member.isAdmin; // Disable checkbox if user is already an admin
+
+                const label = document.createElement('label');
+                label.textContent = member.userName;
+
+                const div = document.createElement('div');
+                div.appendChild(checkbox);
+                div.appendChild(label);
+
+                modalBody.appendChild(div);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching group members:', error);
+        });
+}
+
+// Handle form submission for admin assignment
+document.getElementById('addAdminButton').addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    const selectedUserIds = Array.from(document.querySelectorAll('#adminAssignmentModal .modal-body input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
+    const groupId = selectedGroupId; // Assuming selectedGroupId is the ID of the currently viewed group
+    
+    // Call function to assign admin privileges
+    await assignAdmins(groupId, selectedUserIds);
+});
+
+async  function assignAdmins(groupId,selectedGroupIds){
+    const obj={
+        groupId,
+        selectedGroupIds
+        
+    }
+    console.log("obj" ,obj)
+    try{
+  const res=  await axios.post(`http://localhost:3000/groupChat/addAdmins/`,obj, {headers:{"Authorization":token}})
+  console.log("admin response",res.data.data);
+  alert(res.data);
+    }
+  catch(error){
+    console.log(error);
+  }
+
+
+}
+
+
+function openAddMemberModel() {
+    const groupId = selectedGroupId; // Assuming selectedGroupId is the ID of the currently viewed group
+    populateAddMemberModel(groupId);
+    $('#addMemberGroup').modal('show');
+}
+
+// i will edit this code and i will provide nonmember to this code  
+function populateAddMemberModel(groupId) {
+    axios.get(`http://localhost:3000/groupChat/nonMember?groupId=${groupId}`, { headers: { "Authorization": token } })
+        .then(response => {
+            const members = response.data.nonGroupMembers
+            console.log("member==",members);
+            const modalBody = document.querySelector('#addMemberGroup .modal-body');
+            modalBody.innerHTML = ''; // Clear previous content
+
+            members.forEach(member => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = member.Id;
+                 
+
+                const label = document.createElement('label');
+                label.textContent = member.Name;
+
+                const div = document.createElement('div');
+                div.appendChild(checkbox);
+                div.appendChild(label);
+
+                modalBody.appendChild(div);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching group members:', error);
+        });
+}
+
+document.getElementById('addMemberButton').addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    const selectedUserIds = Array.from(document.querySelectorAll('#addMemberGroup .modal-body input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
+    const groupId = selectedGroupId; // Assuming selectedGroupId is the ID of the currently viewed group
+    
+    // Call function to assign admin privileges
+    await assignMember(groupId, selectedUserIds);
+});
+
+async  function assignMember(groupId,selectedUserIds){
+    const obj={
+        groupId,
+        selectedUserIds
+        
+    }
+    console.log("obj" ,obj)
+    try{
+  const res=  await axios.post(`http://localhost:3000/groupChat/addMember`,obj, {headers:{"Authorization":token}})
+  console.log("member response",res.data);
+  alert(res.data.message);
+  $('#addMemberGroup').modal('hide');
+    }
+  catch(error){
+    console.log(error);
+  }
+}
+//left Group code
+leftGroup.addEventListener("click",async()=>{
+    try{
+    alert("are you sure you want to left this group");
+    const res= await axios.delete(`http://localhost:3000/groupChat/leftGroup/${selectedGroupId}`,{headers:{"authorization":token}});
+    console.log("you left this group",res.data);
+    allGroup();
+    }
+    catch(error){
+        console.log(error);
+    }
+
+})
+
+
 
