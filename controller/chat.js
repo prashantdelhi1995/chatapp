@@ -2,6 +2,10 @@ const sequelize= require("../util/database");
 const chat= require("../model/chat");
 const user=require("../model/user");
 const { Op } = require('sequelize');
+
+  
+
+
 module.exports.postChat=async(req,res,next)=>{
     try {
     const message=req.body.message;

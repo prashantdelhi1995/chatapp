@@ -6,7 +6,7 @@ router.post("/creteGroup",auth.authorization, groupChat.createGroup);
 router.get("/getMember",auth.authorization,groupChat.getAllMember);
 router.get("/allUser",auth.authorization, groupChat.allUser);
 router.get("/allGroup",auth.authorization, groupChat.allGroup);
-router.get("/getChat/:id/:lastElement",auth.authorization, groupChat.getChat);
+//router.get("/getChat/:id/:lastElement",auth.authorization, groupChat.getChat);
 router.post("/postChat/",auth.authorization, groupChat.postChat);
 router.post("/addAdmins",auth.authorization,groupChat.addAdmin)
 router.get("/nonMember",auth.authorization,groupChat.getNonGroupMembers);

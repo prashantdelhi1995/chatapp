@@ -12,6 +12,10 @@ const addAdmin=document.getElementById("admin")
 const leftGroup=document.getElementById("leftGroup");
 const groupLeft=document.getElementById("groupLeft");
 const addMember=document.getElementById("addMember")
+const socket = io("http://localhost:5000");
+socket.on("data", (data) => {
+  console.log(data);
+});
 
 const MAX_MESSAGES = 10;
 
@@ -152,33 +156,70 @@ async function allGroup() {
 }
  
 
-async function loadChat(id){
-    groupMessages.innerHTML="";
+// async function loadChat(id){
+//     groupMessages.innerHTML="";
 
-    let storedMessages = localStorage.getItem(id);
-    storedMessages = storedMessages ? JSON.parse(storedMessages) : [];
+//     let storedMessages = localStorage.getItem(id);
+//     storedMessages = storedMessages ? JSON.parse(storedMessages) : [];
     
-    const lastStoredMessage = storedMessages.length > 0 ? storedMessages[storedMessages.length - 1].id : 0;
+//     const lastStoredMessage = storedMessages.length > 0 ? storedMessages[storedMessages.length - 1].id : 0;
+    
+//     try {
+//         const res = await axios.get(`http://localhost:3000/groupChat/getChat/${id}/${lastStoredMessage}`, { headers: { "Authorization": token } })
+//         const newMessages = res.data.messages;
+
+//         if (newMessages.length > 0) {
+//             // Append new messages to stored messages
+//             storedMessages.push(...newMessages);
+            
+//             // Keep only the latest 10 messages
+//             if (storedMessages.length > MAX_MESSAGES) {
+//                 storedMessages = storedMessages.slice(storedMessages.length - MAX_MESSAGES);
+//             }
+            
+//             // Update local storage
+//             localStorage.setItem(id, JSON.stringify(storedMessages));
+//         }
+
+//         const userId = parseJwt(token).userId;
+//         storedMessages.forEach(element => {
+//             if (element.groupId == id) {
+//                 const message = document.createElement("li");
+//                 const messageText = element.chat.trim();
+//                 let messageName = '';
+                
+//                 if (element.userId === userId) {
+//                     messageName = 'You';
+//                 } else {
+//                     messageName = element.name; // Assuming 'name' is the sender's name
+//                 }
+                
+//                 const messageColor = element.userId === userId ? 'red' : 'blue';
+//                 message.innerHTML = `<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`
+                
+//                 groupMessages.append(message);
+//             }
+//         });
+//     } catch(error) {
+//         console.log(error);
+//     }
+// }
+
+
+
+async function loadChat(id){
+    
+
     
     try {
-        const res = await axios.get(`http://localhost:3000/groupChat/getChat/${id}/${lastStoredMessage}`, { headers: { "Authorization": token } })
-        const newMessages = res.data.messages;
-
-        if (newMessages.length > 0) {
-            // Append new messages to stored messages
-            storedMessages.push(...newMessages);
-            
-            // Keep only the latest 10 messages
-            if (storedMessages.length > MAX_MESSAGES) {
-                storedMessages = storedMessages.slice(storedMessages.length - MAX_MESSAGES);
-            }
-            
-            // Update local storage
-            localStorage.setItem(id, JSON.stringify(storedMessages));
-        }
+        
+        socket.emit("getMessages", id);
+        socket.on("messages", (messages) => {
+            groupMessages.innerHTML="";
+       
 
         const userId = parseJwt(token).userId;
-        storedMessages.forEach(element => {
+        messages.forEach(element => {
             if (element.groupId == id) {
                 const message = document.createElement("li");
                 const messageText = element.chat.trim();
@@ -195,7 +236,7 @@ async function loadChat(id){
                 
                 groupMessages.append(message);
             }
-        });
+        });})
     } catch(error) {
         console.log(error);
     }

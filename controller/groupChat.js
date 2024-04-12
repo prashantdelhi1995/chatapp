@@ -5,6 +5,17 @@ const group=require("../model/group");
 const userGroup=require("../model/usergroup");
 const { Op } = require('sequelize');
 const { get } = require("../route/userRoute");
+
+const io = require("socket.io")(5000, {
+    cors: {
+      origin: ["http://localhost:3000","http://127.0.0.1:5500"],
+      methods: ["GET", "POST"],
+      allowedHeaders: ["my-custom-header"],
+      credentials: true,
+    },
+  });
+
+
  async function createGroup (req,res,next){
     try{
     const groupName=req.body.groupName;
@@ -110,33 +121,52 @@ async function allUser(req,res,next){
         console.log(error);
     }
 }
-async function getChat(req,res,next){
-    try{
-    let id=req.params.id;
-    let lastElement=req.params.lastElement ||0; 
-    
-    console.log("id==",id)
-    const messages = await chat.findAll({
-        where: {
-          id: {
-            [Op.gt]: lastElement
-          },
-          groupId: id// Replace yourGroupId with the actual groupId value
-        }
-      });
-        if(messages!==null){
-            return res.status(201).json({messages})
-        }
-    
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({"message":"chat did not found "})
 
-    }
+io.on("connection", (socket) => {
+    socket.on("getMessages", async (groupId) => {
+      try {
+        
+        const messages = await chat.findAll({
+          where: { groupId: groupId },
+        });
+        console.log("Request Made");
+        io.emit("messages", messages);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
+
+
+
+
+// async function getChat(req,res,next){
+//     try{
+//     let id=req.params.id;
+//     let lastElement=req.params.lastElement ||0; 
+    
+//     console.log("id==",id)
+//     const messages = await chat.findAll({
+//         where: {
+//           id: {
+//             [Op.gt]: lastElement
+//           },
+//           groupId: id// Replace yourGroupId with the actual groupId value
+//         }
+//       });
+//         if(messages!==null){
+//             return res.status(201).json({messages})
+//         }
+    
+//     }
+//     catch(error){
+//         console.log(error);
+//         res.status(500).json({"message":"chat did not found "})
+
+//     }
     
     
-}
+// }
 async function postChat(req,res,next){
     try {
     const message=req.body.message;
@@ -259,7 +289,7 @@ catch(error){
     getAllMember, 
     allUser,
      allGroup, 
-     getChat, 
+     
     postChat,
     deletegroup,
     addAdmin,
