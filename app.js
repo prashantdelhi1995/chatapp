@@ -1,4 +1,5 @@
 const express= require("express");
+const path =require("path");
 
 const Sequelize=require("sequelize");
 
@@ -22,8 +23,15 @@ app.use("/user",userRoute);
 app.use("/user",chatRoute);
 app.use("/groupChat",groupChat);
 app.use((req,res)=>{
-    console.log(res.url);
-    res.send(`<h1>this is not correct url and your url is ${res.url}</h1>`)
+  console.log(res.url);
+  res.sendFile(path.join(__dirname,`/public/${req.url}`))
+  
+
+});
+
+app.use((req,res)=>{
+    console.log(req.url);
+    res.send(`<h1>this is not correct url and your url is ${req.url}</h1>`)
 
 });
 user.hasMany(Chat);

@@ -6,6 +6,16 @@ const userGroup=require("../model/usergroup");
 const { Op } = require('sequelize');
 const { get } = require("../route/userRoute");
 
+const fs = require("fs"); 
+const AWS = require('aws-sdk');
+const multer = require('multer');
+
+// AWS.config.update({
+//     accessKeyId: process.env.YOUR_ACCESS_KEY_ID,
+//     secretAccessKey: process.env.YOUR_SECRET_ACCESS_KEY,
+//     region: 'eu-north-1',
+//   });
+
 const io = require("socket.io")(5000, {
     cors: {
       origin: ["http://localhost:3000","http://127.0.0.1:5500"],
@@ -265,18 +275,137 @@ async function leftGroup(req,res,next){
     try{
     groupId=req.params.groupId;
    const leftGroup= await userGroup.destroy({where:{groupId:groupId,userId:req.user.Id}})
-    
-    
-   
-    res.status(200).json({"message":"left group successfully",leftGroup});
+     res.status(200).json({"message":"left group successfully",leftGroup});
 }
 catch(error){
     res.status(400).json({"message":"you didn't left the group there is some error"});
+}
+}
 
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       // Specify the directory where uploaded files will be stored
+//       cb(null, 'uploads');
+//     },
+//     filename: (req, file, cb) => {
+//       // Generate a unique filename for the uploaded file
+//       cb(null, `${new Date().getTime()}_${file.originalname}`);
+//     },
+//   });
+//   const upload = multer({ storage });
+  
+
+// async function uploadImage(req,res,next){
+//     try {
+//         const groupId=req.params.groupId
+//         // Use the upload middleware to handle file upload
+//         upload.single('file')(req, res, (err) => {
+//           if (err) {
+//             console.log('Error uploading file:', err);
+//             return res.status(400).json({ message: "Error uploading file" });
+//           }
+    
+//           // Access the uploaded file from req.file
+//           const file = req.file;
+//           console.log("file", file);
+    
+//           // Read the file from temporary location
+//           const fileContent = fs.readFileSync(file.path);
+    
+//           // Configure AWS credentials
+//           AWS.config.update({
+//             accessKeyId: "AKIA6GBMC2QFXM3JQT5R",
+//             secretAccessKey: "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",
+//             region: "us-east-1",
+//           });
+    
+//           // Create an S3 instance
+//           const s3 = new AWS.S3();
+    
+//           // Set the S3 parameters
+//           const params = {
+//             Bucket: 'groupchatprashant',
+//             Key: `${req.user.Id}chatappprashant/${new Date().getTime()}_${file.originalname}`,
+//             Body: fileContent,
+//             ACL: "public-read",
+//           };
+    
+//           // Upload the file to S3
+//           s3.upload(params, async (err, data) => {
+//             if (err) {
+//               console.log('Error uploading file:', err);
+//               return res.status(400).json({ message: "Error uploading file" });
+//             } else {
+//               console.log('File uploaded successfully. File URL:', data.Location);
+//               const textMessage= await chat.create({chat:data.Location, name:req.user.Name  ,userId:req.user.Id , groupId, ImageUrl:true});
+
+//               return res.status(200).json({ message: "File uploaded successfully", fileUrl: data.Location });
+//             }
+//           });
+//         });
+//       } catch (error) {
+//         console.log(error);
+//         return res.status(400).json({ message: "Error uploading file" });
+//       }
+
+
+// }
+
+
+const upload = multer();
+
+async function uploadImage(req, res, next) {
+  try {
+    const groupId = req.params.groupId;
+
+    // Use the upload middleware to handle file upload
+    upload.single('file')(req, res, async (err) => {
+      if (err) {
+        console.log('Error uploading file:', err);
+        return res.status(400).json({ message: "Error uploading file" });
+      }
+
+      // Access the uploaded file from req.file
+      const file = req.file;
+      console.log("file", file);
+
+      // Configure AWS credentials
+      AWS.config.update({
+                     accessKeyId: "AKIA6GBMC2QFXM3JQT5R",
+                    secretAccessKey: "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",
+                   region: "us-east-1",
+                  });
+
+      // Create an S3 instance
+      const s3 = new AWS.S3();
+
+      // Set the S3 parameters
+      const params = {
+        Bucket: 'groupchatprashant',
+        Key: `${req.user.Id}chatapprashant/${new Date().getTime()}_${file.originalname}`,
+        Body: file.buffer, // Use file.buffer instead of reading from disk
+        ACL: "public-read",
+      };
+
+      // Upload the file to S3
+      s3.upload(params, async (err, data) => {
+        if (err) {
+          console.log('Error uploading file:', err);
+          return res.status(400).json({ message: "Error uploading file" });
+        } else {
+          console.log('File uploaded successfully. File URL:', data.Location);
+          const textMessage = await chat.create({ chat: data.Location, name: req.user.Name, userId: req.user.Id, groupId, ImageUrl: true });
+          return res.status(200).json({ message: "File uploaded successfully", fileUrl: data.Location });
+        }
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Error uploading file" });
+  }
 }
 
 
-}
 
 
 
@@ -288,7 +417,8 @@ catch(error){
     createGroup, 
     getAllMember, 
     allUser,
-     allGroup, 
+     allGroup,
+     uploadImage, 
      
     postChat,
     deletegroup,

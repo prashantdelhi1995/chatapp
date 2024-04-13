@@ -12,6 +12,7 @@ router.post("/addAdmins",auth.authorization,groupChat.addAdmin)
 router.get("/nonMember",auth.authorization,groupChat.getNonGroupMembers);
 router.post("/addMember",auth.authorization,groupChat.addMemberIntoGroup);
 router.delete("/leftGroup/:groupId",auth.authorization,groupChat.leftGroup);
+router.post("/uploadImage/:groupId",auth.authorization,groupChat.uploadImage);
 
 
 

@@ -12,6 +12,7 @@ const addAdmin=document.getElementById("admin")
 const leftGroup=document.getElementById("leftGroup");
 const groupLeft=document.getElementById("groupLeft");
 const addMember=document.getElementById("addMember")
+const fileInput=document.getElementById("file-input");
 const socket = io("http://localhost:5000");
 socket.on("data", (data) => {
   console.log(data);
@@ -220,7 +221,10 @@ async function loadChat(id){
 
         const userId = parseJwt(token).userId;
         messages.forEach(element => {
+            console.log("element==",element)
+
             if (element.groupId == id) {
+                
                 const message = document.createElement("li");
                 const messageText = element.chat.trim();
                 let messageName = '';
@@ -230,11 +234,21 @@ async function loadChat(id){
                 } else {
                     messageName = element.name; // Assuming 'name' is the sender's name
                 }
-                
                 const messageColor = element.userId === userId ? 'red' : 'blue';
-                message.innerHTML = `<p style="color:${messageColor};font-size: 0.875em;">${messageName} </p>${messageText}`
+                if(element.ImageUrl==false){
                 
+                message.innerHTML = `<p style="color:${messageColor};font-size: 0.875em;">${messageName}</p><p>${element.createdAt.substring(0, 10)} </p><p>${messageText}</p>`
                 groupMessages.append(message);
+                }
+                else{
+                    const div =document.createElement("div")
+                    div.style.width="200px"
+                    div.style.height="150px"
+                    div.innerHTML=`<p style="color:${messageColor};font-size: 0.875em;">${messageName}</p>
+                     <p><img width="200" height="150"src=${messageText} /></p>
+                     ${element.createdAt.substring(0, 10)}`
+                     groupMessages.append(div);
+                }
             }
         });})
     } catch(error) {
@@ -242,11 +256,26 @@ async function loadChat(id){
     }
 }
 
-sendMessageForm.addEventListener("submit",(event)=>{
+sendMessageForm.addEventListener("submit", async (event)=>{
     event.preventDefault();
-    const message=messageText.value;
-    sendMessage(message);
-    messageText.value="";
+    const file=fileInput.files[0];
+        
+    if(file){
+        sendImage(file)
+       
+
+
+        sendMessageForm.reset();
+
+   
+    }
+    else{
+        const message=messageText.value;
+        sendMessage(message);
+        messageText.value="";
+
+        
+    }
 })
 async function sendMessage(message) {
 
@@ -268,6 +297,32 @@ async function sendMessage(message) {
         alert("no group is selected");
         console.error('No group selected to send message');
     }
+}
+
+async function sendImage(file){
+    if(selectedGroupId){
+    try {
+        const formData=new FormData();
+        formData.append("file", file);
+        const response = await axios.post(`/groupChat/uploadImage/${selectedGroupId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            "Authorization":token
+
+          }
+        });
+        console.log('File uploaded successfully:', response.data);
+        loadChat(selectedGroupId)
+        
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+    else{
+        alert("please select any group");
+    }
+
+
 }
 
 

@@ -15,6 +15,11 @@ const Chat=sequelize.define('Chats',{
     name:{
         allowNull: false,
         type: Sequelize.STRING
+    },
+    ImageUrl:{
+        
+        type:Sequelize.BOOLEAN,
+        defaultValue:false
     }
 })
 
