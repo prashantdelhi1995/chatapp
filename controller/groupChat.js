@@ -6,6 +6,7 @@ const userGroup=require("../model/usergroup");
 const { Op } = require('sequelize');
 const { get } = require("../route/userRoute");
 
+
 const fs = require("fs"); 
 const AWS = require('aws-sdk');
 const multer = require('multer');
@@ -314,8 +315,8 @@ catch(error){
     
 //           // Configure AWS credentials
 //           AWS.config.update({
-//             accessKeyId: "AKIA6GBMC2QFXM3JQT5R",
-//             secretAccessKey: "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",
+//             accessKeyId:,
+//             secretAccessKey: ,
 //             region: "us-east-1",
 //           });
     
@@ -371,8 +372,8 @@ async function uploadImage(req, res, next) {
 
       // Configure AWS credentials
       AWS.config.update({
-                     accessKeyId: "AKIA6GBMC2QFXM3JQT5R",
-                    secretAccessKey: "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",
+                     accessKeyId: process.env.accessKeyId,
+                    secretAccessKey: process.env.secretAccessKey,
                    region: "us-east-1",
                   });
 
