@@ -13,7 +13,7 @@ const leftGroup=document.getElementById("leftGroup");
 const groupLeft=document.getElementById("groupLeft");
 const addMember=document.getElementById("addMember")
 const fileInput=document.getElementById("file-input");
-const socket = io("http://localhost:5000");
+const socket = io("http://35.154.147.16/://:5000");
 socket.on("data", (data) => {
   console.log(data);
 });
@@ -32,7 +32,7 @@ logout.addEventListener("click", () => {
 
 // Function to fetch members
 function fetchMembers() {
-    return axios.get('http://localhost:3000/groupChat/allUser', { headers: { "Authorization": token } }) 
+    return axios.get('/groupChat/allUser', { headers: { "Authorization": token } }) 
         .then(response => response.data)
         .catch(error => console.error('Error fetching members:', error));
 }
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         .map(option => option.value);
         console.log("value=", selectedMembers)
         try {
-          const res= await axios.post("http://localhost:3000/groupChat/creteGroup", { groupName, groupUsers:selectedMembers }, {
+          const res= await axios.post("/groupChat/creteGroup", { groupName, groupUsers:selectedMembers }, {
                 headers: { "Authorization": token }
             })
             allGroup();
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function allGroup() {
     joinedGroups.innerHTML = '';
-    const res = await axios.get('http://localhost:3000/groupChat/allGroup', { headers: { "Authorization": token } })
+    const res = await axios.get('/groupChat/allGroup', { headers: { "Authorization": token } })
     res.data.reverse().forEach(group => {
         const userGroup = document.createElement("li");
         const button = document.createElement("button");
@@ -282,7 +282,7 @@ async function sendMessage(message) {
     if (selectedGroupId) {
         try {
             // Send message to the selected group
-            await axios.post(`http://localhost:3000/groupChat/postChat`, {
+            await axios.post(`/groupChat/postChat`, {
                 groupId: selectedGroupId,
                 message: message
             }, {
@@ -337,7 +337,7 @@ function parseJwt(token) {
 
 function openGroupInfoModal(groupId) {
     // Fetch group members and populate the modal
-    axios.get(`http://localhost:3000/groupChat/getMember?groupId=${groupId}`,{headers:{"Authorization":token}})
+    axios.get(`/groupChat/getMember?groupId=${groupId}`,{headers:{"Authorization":token}})
     .then(response => {
         const members = response.data.allMember;
         console.log("members=",members)
@@ -393,7 +393,7 @@ function openAdminAssignmentModal() {
 
 // Function to fetch group members and populate admin assignment modal
 function populateAdminAssignmentModal(groupId) {
-    axios.get(`http://localhost:3000/groupChat/getMember?groupId=${groupId}`, { headers: { "Authorization": token } })
+    axios.get(`/groupChat/getMember?groupId=${groupId}`, { headers: { "Authorization": token } })
         .then(response => {
             const members = response.data.allMember;
             const modalBody = document.querySelector('#adminAssignmentModal .modal-body');
@@ -441,7 +441,7 @@ async  function assignAdmins(groupId,selectedGroupIds){
     }
     console.log("obj" ,obj)
     try{
-  const res=  await axios.post(`http://localhost:3000/groupChat/addAdmins/`,obj, {headers:{"Authorization":token}})
+  const res=  await axios.post(`/groupChat/addAdmins/`,obj, {headers:{"Authorization":token}})
   console.log("admin response",res.data.data);
   alert(res.data);
     }
@@ -461,7 +461,7 @@ function openAddMemberModel() {
 
 // i will edit this code and i will provide nonmember to this code  
 function populateAddMemberModel(groupId) {
-    axios.get(`http://localhost:3000/groupChat/nonMember?groupId=${groupId}`, { headers: { "Authorization": token } })
+    axios.get(`/groupChat/nonMember?groupId=${groupId}`, { headers: { "Authorization": token } })
         .then(response => {
             const members = response.data.nonGroupMembers
             console.log("member==",members);
@@ -508,7 +508,7 @@ async  function assignMember(groupId,selectedUserIds){
     }
     console.log("obj" ,obj)
     try{
-  const res=  await axios.post(`http://localhost:3000/groupChat/addMember`,obj, {headers:{"Authorization":token}})
+  const res=  await axios.post(`/groupChat/addMember`,obj, {headers:{"Authorization":token}})
   console.log("member response",res.data);
   alert(res.data.message);
   $('#addMemberGroup').modal('hide');
@@ -521,7 +521,7 @@ async  function assignMember(groupId,selectedUserIds){
 leftGroup.addEventListener("click",async()=>{
     try{
     alert("are you sure you want to left this group");
-    const res= await axios.delete(`http://localhost:3000/groupChat/leftGroup/${selectedGroupId}`,{headers:{"authorization":token}});
+    const res= await axios.delete(`/groupChat/leftGroup/${selectedGroupId}`,{headers:{"authorization":token}});
     console.log("you left this group",res.data);
     allGroup();
     }

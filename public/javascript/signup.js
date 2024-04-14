@@ -4,7 +4,7 @@ document.getElementById('registration-form').addEventListener('submit', function
 
     const formData = new FormData(this);
 
-    axios.post('http://localhost:3000/user/signup', {
+    axios.post('/user/signup', {
         name: formData.get('name'),
         email: formData.get('email'),
         password: formData.get('password')

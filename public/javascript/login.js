@@ -5,7 +5,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
 
     const formData = new FormData(this);
 
-    axios.post('http://localhost:3000/user/login', {
+    axios.post('/user/login', {
       
         email: formData.get('email'),
         password: formData.get('password')
