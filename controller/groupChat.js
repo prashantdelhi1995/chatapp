@@ -315,8 +315,7 @@ catch(error){
     
 //           // Configure AWS credentials
 //           AWS.config.update({
-//             accessKeyId:,
-//             secretAccessKey: ,
+//             
 //             region: "us-east-1",
 //           });
     

@@ -13,6 +13,8 @@ const group=require("./model/group");
 const userGroup=require("./model/usergroup");
 const groupChat=require("./route/groupChat");
 const cors=require("cors")
+const CronJob= require("./job/cron")
+CronJob.start();
 
 const app= express();
 app.use(cors());
