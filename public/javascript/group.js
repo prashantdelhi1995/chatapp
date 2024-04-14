@@ -13,7 +13,7 @@ const leftGroup=document.getElementById("leftGroup");
 const groupLeft=document.getElementById("groupLeft");
 const addMember=document.getElementById("addMember")
 const fileInput=document.getElementById("file-input");
-const socket = io("http://35.154.147.16/://:5000");
+const socket = io("http://35.154.147.16:5000");
 socket.on("data", (data) => {
   console.log(data);
 });
